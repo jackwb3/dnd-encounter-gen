@@ -76,11 +76,9 @@ class DndEncGen():
         months = 0
         weeks = 0
         days = 0
-        daynight = 0
+        daynight = self.time[0]
         numberofperiods = 0
         nightmod = 100
-        if self.time[3] == 1:
-            daynight = self.time[0]
         if self.time[0] != 0:
             months = self.time[0]
         if self.time[1] != 0:
@@ -88,11 +86,13 @@ class DndEncGen():
         if self.time[2] != 0:
             days = self.time[2]
         if daynight == 0:
-            numberofperiods = (months * 30) + (weeks * 7) + (days)
+            numberofperiods = (months * 30) + (weeks * 7) + (day)
+# if numberofperiods = 0 throw error            
         elif daynight != 0:
             numberofperiods = 1
         if daynight == -1:
             nightmod = 150
+# create dict with nighttime chance mods to modify the standard traveltype chance
 
         for item in self.travels:
             if item == "Highway":

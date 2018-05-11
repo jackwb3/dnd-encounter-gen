@@ -108,8 +108,8 @@ class DndEncGenGUI(QWidget):
         self.monthslbl = QLabel()
         self.monthslbl.setText("Months")
         self.monthsdd = QComboBox()
-        count = 1
-        for num in range(1, 13):
+        count = 0
+        for num in range(0, 13):
             self.monthsdd.addItem(str(count))
             count = count + 1
         vbox1.addWidget(self.monthslbl)
@@ -118,8 +118,8 @@ class DndEncGenGUI(QWidget):
         self.weekslbl = QLabel()
         self.weekslbl.setText("Weeks")
         self.weeksdd = QComboBox()
-        count = 1
-        for num in range(1, 5):
+        count = 0
+        for num in range(0, 5):
             self.weeksdd.addItem(str(count))
             count = count + 1
         vbox2.addWidget(self.weekslbl)
@@ -128,8 +128,8 @@ class DndEncGenGUI(QWidget):
         self.dayslbl = QLabel()
         self.dayslbl.setText("Days")
         self.daysdd = QComboBox()
-        count = 1
-        for num in range(1, 8):
+        count = 0
+        for num in range(0, 8):
             self.daysdd.addItem(str(count))
             count = count + 1
         vbox3.addWidget(self.dayslbl)
