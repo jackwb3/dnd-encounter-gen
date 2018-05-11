@@ -22,7 +22,7 @@ class DndEncGen():
         # traveltype[0] = highway, traveltype[1] = road
         # traveltype[2] = trail, traveltype[3] = wilderness
         self.traveltype = [{"merchantcaravan": 95, "travellers": 85,
-                            "lonetravellers": 65, "soldiers": 45,
+                            "lonetraveller": 65, "soldiers": 45,
                             "adventurers": 35, "monsters":  5,
                             "animals": 3},
                            {"merchantcaravan": 65, "travellers": 50,
@@ -30,11 +30,11 @@ class DndEncGen():
                             "adventurers": 20, "monsters": 10,
                             "animals": 15},
                            {"merchantcaravan": 0, "travellers": 15,
-                            "lonetravellers": 5, "soldiers": 10,
+                            "lonetraveller": 5, "soldiers": 10,
                             "adventurers": 5, "monsters":  35,
                             "animals": 45},
                            {"merchantcaravan": 0, "travellers": 5,
-                            "lonetravellers": 0, "soldiers": 20,
+                            "lonetraveller": 0, "soldiers": 20,
                             "adventurers": 5, "monsters":  45,
                             "animals": 65}]
         self.terraintypemod = {"arctic": 90,
@@ -49,7 +49,7 @@ class DndEncGen():
                                "underwater": 100,
                                "urban": 105}
         self.encounters = {"merchantcaravan": 0, "travellers": 0,
-                           "lonetraveler": 0, "soldiers": 0,
+                           "lonetraveller": 0, "soldiers": 0,
                            "adventurers": 0, "monsters": 0,
                            "animals": 0}
 
@@ -60,7 +60,7 @@ class DndEncGen():
         print(self.travels)
         print(self.partysize)
         print(self.partylevel)
-        print(self.challengerating)
+        # print(self.challengerating)
         print(self.time)
         print(self.freqadjust)
         self._determineEncoutersAndNumbers()
@@ -154,6 +154,10 @@ class DndEncGen():
         self.challengerating = 0
         self.time = [0, 0, 0, 0]
         self.freqadjust = 50
+        self.encounters = {"merchantcaravan": 0, "travellers": 0,
+                           "lonetraveller": 0, "soldiers": 0,
+                           "adventurers": 0, "monsters": 0,
+                           "animals": 0}
 
     def createNewWindow(self):
         """ bs """

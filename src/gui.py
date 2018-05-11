@@ -76,22 +76,24 @@ class DndEncGenGUI(QWidget):
         vboxtop = QVBoxLayout()
         hbox1 = QHBoxLayout()
         numplayerslbl = QLabel("Number of Players")
-        self.numplayers = QLineEdit()
+        self.numplayers = QComboBox()
+        count = 1
+        for num in range(1, 11):
+            self.numplayers.addItem(str(count))
+            count = count + 1
         hbox1.addWidget(numplayerslbl)
         hbox1.addWidget(self.numplayers)
         hbox2 = QHBoxLayout()
         avglvllbl = QLabel("Average Level of Players")
-        self.avglvl = QLineEdit()
+        self.avglvl = QComboBox()
+        count = 1
+        for num in range(1, 31):
+            self.avglvl.addItem(str(count))
+            count = count + 1
         hbox2.addWidget(avglvllbl)
         hbox2.addWidget(self.avglvl)
-        # hbox3 = QHBoxLayout()
-        # crlbl = QLabel("Challenge Rating")
-        # self.cr = QLineEdit()
-        # hbox3.addWidget(crlbl)
-        # hbox3.addWidget(self.cr)
         vboxtop.addLayout(hbox1)
         vboxtop.addLayout(hbox2)
-        # vboxtop.addLayout(hbox3)
         gboxtop.setLayout(vboxtop)
 
         gboxbottom = QGroupBox("Time Parameters")
@@ -100,17 +102,62 @@ class DndEncGenGUI(QWidget):
         self.night = QCheckBox("Single Night (nitghtime hours)")
         self.custom = QCheckBox("Custom Time Range")
         self.custom.stateChanged.connect(self._toggleTimeInput)
-        self.customlbl = QLabel()
-        self.customlbl.setText("Example: 1m2w3d")
-        self.customlbl.hide()
-        self.customqle = QLineEdit()
-        self.customqle.hide()
+        
+        hboxcustomtime = QHBoxLayout()
+        vbox1 = QVBoxLayout()
+        self.monthslbl = QLabel()
+        self.monthslbl.setText("Months")
+        self.monthsdd = QComboBox()
+        count = 1
+        for num in range(1, 13):
+            self.monthsdd.addItem(str(count))
+            count = count + 1
+        vbox1.addWidget(self.monthslbl)
+        vbox1.addWidget(self.monthsdd)
+        vbox2= QVBoxLayout()
+        self.weekslbl = QLabel()
+        self.weekslbl.setText("Weeks")
+        self.weeksdd = QComboBox()
+        count = 1
+        for num in range(1, 5):
+            self.weeksdd.addItem(str(count))
+            count = count + 1
+        vbox2.addWidget(self.weekslbl)
+        vbox2.addWidget(self.weeksdd)
+        vbox3 = QVBoxLayout()
+        self.dayslbl = QLabel()
+        self.dayslbl.setText("Days")
+        self.daysdd = QComboBox()
+        count = 1
+        for num in range(1, 8):
+            self.daysdd.addItem(str(count))
+            count = count + 1
+        vbox3.addWidget(self.dayslbl)
+        vbox3.addWidget(self.daysdd)
+        hboxcustomtime.addLayout(vbox1)
+        hboxcustomtime.addLayout(vbox2)
+        hboxcustomtime.addLayout(vbox3)
+        self.monthslbl.hide()
+        self.monthsdd.hide()
+        self.weekslbl.hide()
+        self.weeksdd.hide()
+        self.dayslbl.hide()
+        self.daysdd.hide()
+        
+        # self.dayslbl = QLabel()
+        # self.dayslbl.setText("days")
+        # self.customlbl = QLabel()
+        # self.customlbl.setText("Example: 1m2w3d")
+        # self.customlbl.hide()
+        # self.customqle = QLineEdit()
+        # self.customqle.hide()
 
         vboxbottom.addWidget(self.day)
         vboxbottom.addWidget(self.night)
         vboxbottom.addWidget(self.custom)
-        vboxbottom.addWidget(self.customlbl)
-        vboxbottom.addWidget(self.customqle)
+        vboxbottom.addLayout(hboxcustomtime)
+        # vboxbottom.addWidget(self.customlbl)
+        # vboxbottom.addWidget(self.customqle)
         gboxbottom.setLayout(vboxbottom)
 
         vboxright.addWidget(gboxtop)
@@ -152,6 +199,8 @@ class DndEncGenGUI(QWidget):
         self.slidervbox.addWidget(sliderlbl)
         self.slidervbox.addWidget(self.slider)
 
+        self.resetbttn = QPushButton("Reset")
+        self.resetbttn.clicked.connect(self.on_click_reset)
         self.generatebttn = QPushButton("Generate")
         self.generatebttn.clicked.connect(self.on_click)
         self.quitbttn = QPushButton("Quit")
@@ -159,6 +208,7 @@ class DndEncGenGUI(QWidget):
 
         self.hbox = QHBoxLayout()
         self.hbox.addStretch(1)
+        self.hbox.addWidget(self.resetbttn)
         self.hbox.addWidget(self.generatebttn)
         self.hbox.addWidget(self.quitbttn)
 
@@ -168,18 +218,52 @@ class DndEncGenGUI(QWidget):
         self.parseParameters()
         self.gen.generateEncounter()
 
+    @pyqtSlot()
+    def on_click_reset(self):
+        self.arctic.setChecked(False)
+        self.desert.setChecked(False)
+        self.coast.setChecked(False)
+        self.forest.setChecked(False)
+        self.grasslands.setChecked(False)
+        self.hills.setChecked(False)
+        self.mountains.setChecked(False)
+        self.swamp.setChecked(False)
+        self.underdark.setChecked(False)
+        self.underwater.setChecked(False)
+        self.urban.setChecked(False)
+        self.highway.setChecked(False)
+        self.road.setChecked(False)
+        self.trail.setChecked(False)
+        self.wilderness.setChecked(False)
+        self.day.setChecked(False)
+        self.night.setChecked(False)
+        self.custom.setChecked(False)
+        self.slider.setValue(9)
+
     def _toggleTimeInput(self):
         """ Handles dynamic display of alternate time inputs. """
         if self.custom.isChecked():
             self.day.hide()
             self.night.hide()
-            self.customlbl.show()
-            self.customqle.show()
+            self.monthslbl.show()
+            self.monthsdd.show()
+            self.weekslbl.show()
+            self.weeksdd.show()
+            self.dayslbl.show()
+            self.daysdd.show()
+            # self.customlbl.show()
+            # self.customqle.show()
         elif not self.custom.isChecked():
             self.day.show()
             self.night.show()
-            self.customlbl.hide()
-            self.customqle.hide()
+            self.monthslbl.hide()
+            self.monthsdd.hide()
+            self.weekslbl.hide()
+            self.weeksdd.hide()
+            self.dayslbl.hide()
+            self.daysdd.hide()
+            # self.customlbl.hide()
+            # self.customqle.hide()
 
     def parseParameters(self):
         """ Loads the values into the generator depending on current
@@ -220,10 +304,10 @@ class DndEncGenGUI(QWidget):
         # if self.sea.isChecked():
         #     self.gen.travels.append("Sea")
 
-        if self.numplayers.text() != "":
-            self.gen.partysize = self.numplayers.text()
-        if self.avglvl.text() != "":
-            self.gen.partylevel = self.avglvl.text()
+        if self.numplayers.currentText() != "":
+            self.gen.partysize = self.numplayers.currentText()
+        if self.avglvl.currentText() != "":
+            self.gen.partylevel = self.avglvl.currentText()
         # if self.cr.text() != "":
         #     self.gen.challengerating = self.cr.text()
 
@@ -232,7 +316,9 @@ class DndEncGenGUI(QWidget):
         if self.night.isChecked():
             self.gen.time[3] = -1
         if self.custom.isChecked():
-            pass
+            self.gen.time[0] = int(self.monthsdd.currentText())
+            self.gen.time[1] = int(self.weeksdd.currentText())
+            self.gen.time[2] = int(self.daysdd.currentText())
 
         self.gen.freqadjust = self.slider.value()
 
