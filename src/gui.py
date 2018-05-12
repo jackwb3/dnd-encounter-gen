@@ -57,11 +57,11 @@ class DndEncGenGUI(QWidget):
         vbox.addWidget(self.coast)
         self.forest = QCheckBox("Forest")
         vbox.addWidget(self.forest)
-        self.grasslands = QCheckBox("Grasslands")
-        vbox.addWidget(self.grasslands)
-        self.hills = QCheckBox("Hills")
+        self.grassland = QCheckBox("Grassland")
+        vbox.addWidget(self.grassland)
+        self.hills = QCheckBox("Hill")
         vbox.addWidget(self.hills)
-        self.mountains = QCheckBox("Mountains")
+        self.mountains = QCheckBox("Mountain")
         vbox.addWidget(self.mountains)
         self.swamp = QCheckBox("Swamp")
         vbox.addWidget(self.swamp)
@@ -218,7 +218,7 @@ class DndEncGenGUI(QWidget):
         self.desert.setChecked(False)
         self.coast.setChecked(False)
         self.forest.setChecked(False)
-        self.grasslands.setChecked(False)
+        self.grassland.setChecked(False)
         self.hills.setChecked(False)
         self.mountains.setChecked(False)
         self.swamp.setChecked(False)
@@ -273,12 +273,12 @@ class DndEncGenGUI(QWidget):
             self.gen.terrains.append("Desert")
         if self.forest.isChecked():
             self.gen.terrains.append("Forest")
-        if self.grasslands.isChecked():
-            self.gen.terrains.append("Grasslands")
+        if self.grassland.isChecked():
+            self.gen.terrains.append("Grassland")
         if self.hills.isChecked():
-            self.gen.terrains.append("Hills")
+            self.gen.terrains.append("Hill")
         if self.mountains.isChecked():
-            self.gen.terrains.append("Mountains")
+            self.gen.terrains.append("Mountain")
         if self.swamp.isChecked():
             self.gen.terrains.append("Swamp")
         if self.underdark.isChecked():

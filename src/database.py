@@ -11,56 +11,52 @@ class DBHandler():
     
     def __init__(self):
         self.db = "monsters.db"
-        self.con = ""
+        self.con = self.connect()
         
     def connect(self):
         """ docstring """
-        self.con = sqlite.connect(self.db)
-        return 0
+        conn = sqlite.connect(self.db)
+        return conn
         
-    def getRelevantMonsterData(self, terraintype):
+    def getRelevantMonsterData(self, terraintype, cr):
         """ docstring """
         with self.con:
             cur = self.con.cursor()
             tmpstring = ""
             returnlist = []
+            cr = "'" + cr + "'"
             for x in range(len(terraintype)):
-                print(x)
                 if x == 0:
                     tmpstring += " (" + terraintype[x] + " = 'YES'"
                 if x > 0:
                     tmpstring += " or " + terraintype[x] + " = 'YES'"
             query = "SELECT Name, Type, ALIGNMENT, Size, CR, AC, HP, \
                     Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" \
-                    + tmpstring + ") and Type != 'Beast';"
-            print(query)
+                    + tmpstring + ") and Type != 'Beast' and CR <= " + cr + ";"
             cur.execute(query)
             rows = cur.fetchall()
             for row in rows:
-                # print(row)
                 returnlist.append(row)
         return returnlist
         
-    def getRelevantBeastData(self, terraintype):
+    def getRelevantBeastData(self, terraintype, cr):
         """ docstring """
         with self.con:
             cur = self.con.cursor()
             tmpstring = ""
             returnlist = []
+            cr = "'" + cr + "'"
             for x in range(len(terraintype)):
-                print(x)
                 if x == 0:
                     tmpstring += " (" + terraintype[x] + " = 'YES'"
                 if x > 0:
                     tmpstring += " or " + terraintype[x] + " = 'YES'"
             query = "SELECT Name, Type, ALIGNMENT, Size, CR, AC, HP, \
                     Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" \
-                    + tmpstring + ") and Type = 'Beast';"
-            print(query)
+                    + tmpstring + ") and Type = 'Beast' and CR <= " + cr + ";"
             cur.execute(query)
             rows = cur.fetchall()
             for row in rows:
-                # print(row)
                 returnlist.append(row)
         return returnlist
         

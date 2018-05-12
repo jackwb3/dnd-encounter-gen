@@ -2,12 +2,14 @@
 
 
 import random
+from database import DBHandler
 
 
 class DndEncGen():
     """ Class handles encounter generation. """
 
     def __init__(self):
+        self.db = DBHandler()
         self.terrains = []
         self.travels = []
         self.partysize = 0
@@ -16,7 +18,6 @@ class DndEncGen():
         # time[3] = day or night = 1 or -1
         self.time = [0, 0, 0, 0]
         self.freqadjust = 50
-        self.xpforencouner = 0
         self.xplvl1 = 25
         # traveltype[0] = highway, traveltype[1] = road
         # traveltype[2] = trail, traveltype[3] = wilderness
@@ -40,7 +41,7 @@ class DndEncGen():
                                "coast": 120,
                                "desert": 80,
                                "forest": 120,
-                               "grasslands": 100,
+                               "Grassland": 100,
                                "hills": 100,
                                "mountains": 75,
                                "swamp": 120,
@@ -55,20 +56,34 @@ class DndEncGen():
                               "lonetraveller": 10, "soldiers": 5,
                               "adventurers": 3, "monsters": 2,
                               "animals": 2}
+        self.xptocr = dict([(10, '0'), (25, '1/8'), (50, '1/4'), (100, '1/2'), (200, '1'),
+                            (450, '2'), (700, '3'), (1100,
+                                                     '4'), (1800, '5'), (2300, '6'),
+                            (2900, '7'), (3900, '8'), (5000,
+                                                       '9'), (5900, '10'), (7200, '11'),
+                            (8400, '12'), (10000, '13'), (11500, '14'), (13000, '15'),
+                            (15000, '16'), (18000,
+                                            '17'), (20000, '18'), (22000, '19'),
+                            (25000, '20'), (33000,
+                                            '21'), (41000, '22'), (50000, '23'),
+                            (62000, '24'), (75000, '25'), (90000,
+                                                           '26'), (105000, '27'),
+                            (120000, '28'), (135000, '29'), (155000, '30')])
 
     def generateEncounter(self):
         """ This is the master function that starts the process of displaying a
         new window with the randomly generated encounters. """
-        print(self.terrains)
-        print(self.travels)
-        print(self.partysize)
-        print(self.partylevel)
-        print(self.time)
-        print(self.freqadjust)
+        print("Terrain Types = ", self.terrains)
+        print("Travel Types = ", self.travels)
+        print("Party Size = ", self.partysize)
+        print("Average Party Level = ", self.partylevel)
+        print("time = ", self.time)
+        print("freqadjust = ", self.freqadjust)
         self._determineEncoutersAndNumbers()
-        print(self.encounters)
-        self._calculateDifficultyInXP()
-        print(self.xpforencouner)
+        print("Encounters = ", self.encounters)
+        self._genMonsterAndAnimalEncounters()
+        # self._calculateDifficultyInXP()
+        # print(self.xpforencouner)
 
         self.reset()
         return 0
@@ -88,14 +103,13 @@ class DndEncGen():
             weeks = self.time[1]
         if self.time[2] != 0:
             days = self.time[2]
-        if daynight == 0:
-            numberofperiods = (months * 30) + (weeks * 7) + (days)
-        elif daynight == 1 or daynight == -1:
+        numberofperiods = (months * 30) + (weeks * 7) + (days)
+        if daynight == 1 or daynight == -1:
             numberofperiods = 1
         if daynight == -1:
             nightmod = 150
 # create dict with nighttime chance mods to modify the standard traveltype chance
-        print(numberofperiods)
+        print("Number of Periods = ", numberofperiods)
         for period in range(0, numberofperiods):
             for item in self.travels:
                 if item == "Highway":
@@ -147,21 +161,59 @@ class DndEncGen():
         difficulty = random.randrange(1, 16)
         # easy
         if difficulty == 1:
-            self.xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                                  int(self.partysize))
+            difficultyname = "easy"
+            xpforencouner = (self.xplvl1 * int(self.partylevel) *
+                             int(self.partysize))
         # medium
         if difficulty > 1 and difficulty < 10:
-            self.xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                                  int(self.partysize) * 2)
+            difficultyname = "medium"
+            xpforencouner = (self.xplvl1 * int(self.partylevel) *
+                             int(self.partysize) * 2)
         # hard
         if difficulty >= 10 and difficulty < 16:
-            self.xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                                  int(self.partysize) * 3)
+            difficultyname = "hard"
+            xpforencouner = (self.xplvl1 * int(self.partylevel) *
+                             int(self.partysize) * 3)
         # deadly
         if difficulty == 16:
-            self.xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                                  int(self.partysize) * 4)
-        return self.xpforencouner
+            difficultyname = "deadly"
+            xpforencouner = (self.xplvl1 * int(self.partylevel) *
+                             int(self.partysize) * 4)
+        return xpforencouner, difficultyname
+
+    def _genMonsterAndAnimalEncounters(self):
+        """ docstring """
+        for each in range(0, self.encounters["monsters"]):
+            xp, diff = self._calculateDifficultyInXP()
+            print("xp = ", xp)
+            cr = 0
+            previouskey = 0
+            for key, value in self.xptocr.items():
+                if xp <= key and xp >= previouskey:
+                    cr = value
+                    print("cr = ", cr)
+                previouskey = key
+            potentialmonsters = self.db.getRelevantMonsterData(
+                self.terrains, cr)
+            print("difficulty = ", diff)
+            # for item in potentialbeasts:
+            #     print(item)
+        for each in range(0, self.encounters["animals"]):
+            xp, diff = self._calculateDifficultyInXP()
+            print("xp = ", xp)
+            cr = 0
+            previouskey = 0
+            for key, value in self.xptocr.items():
+                if xp <= key and xp >= previouskey:
+                    cr = value
+                    print("cr = ", cr)
+                previouskey = key
+            potentialbeasts = self.db.getRelevantBeastData(self.terrains, cr)
+            print("difficulty = ", diff)
+            # for item in potentialbeasts:
+            #     print(item)
+            # parse the selection of beasts to find a number of beast whos crs equal the cr value
+        return
 
     def reset(self):
         """ Resets all of the attributes of this class """
@@ -176,5 +228,3 @@ class DndEncGen():
                            "lonetraveller": 0, "soldiers": 0,
                            "adventurers": 0, "monsters": 0,
                            "animals": 0}
-
-    
