@@ -179,7 +179,7 @@ class DndEncGenGUI(QWidget):
         return vboxright
 
     def _createBottomRow(self):
-        """ maybe add a reset button to clear current settings """
+        """ This generated the bottom row of options and buttons. """
         self.slidervbox = QVBoxLayout()
         sliderlbl = QLabel()
         sliderlbl.setText("Encounter Frequency Adjustment")
@@ -213,6 +213,7 @@ class DndEncGenGUI(QWidget):
 
     @pyqtSlot()
     def on_click_reset(self):
+        """ Resets all values to default startup values. """
         self.arctic.setChecked(False)
         self.desert.setChecked(False)
         self.coast.setChecked(False)
@@ -257,6 +258,7 @@ class DndEncGenGUI(QWidget):
         return 0
 
     def _popupMessage(self, title, message):
+        """ Wrapper for generating a popup dialog box. """
         QMessageBox.about(self, title, message)
         return 0
 

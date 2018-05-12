@@ -1,11 +1,11 @@
-""" docstring shit """
+""" Encounter number and types are generated here. """
 
 
 import random
 
 
 class DndEncGen():
-    """ may not need to set a challenge rating """
+    """ Class handles encounter generation. """
 
     def __init__(self):
         self.terrains = []
@@ -164,6 +164,7 @@ class DndEncGen():
         return self.xpforencouner
 
     def reset(self):
+        """ Resets all of the attributes of this class """
         self.terrains = []
         self.travels = []
         self.partysize = 0
@@ -176,6 +177,4 @@ class DndEncGen():
                            "adventurers": 0, "monsters": 0,
                            "animals": 0}
 
-    def createNewWindow(self):
-        """ bs """
-        pass
+    
