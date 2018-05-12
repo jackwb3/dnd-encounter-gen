@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (QWidget, QPushButton,
                              QCheckBox, QApplication,
                              QLabel, QGridLayout,
                              QLineEdit, QGroupBox,
-                             QSlider, QComboBox)
+                             QSlider, QComboBox,
+                             QMessageBox)
 from PyQt5.QtCore import (pyqtSlot, Qt)
 
 
@@ -20,6 +21,29 @@ class DndEncGenGUI(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
+
+    def initUI(self):
+        """ Initializes the window. """
+        self.gen = DndEncGen()
+
+        leftbox = self._createLeftGroupBox()
+        middlebox = self._createMiddleGroupBox()
+        rightbox = self._createRightGroupBoxes()
+        self._createBottomRow()
+        mainlayout = QGridLayout()
+        mainlayout.setAlignment(Qt.AlignTop)
+        mainlayout.setColumnMinimumWidth(0, 200)
+        mainlayout.setColumnMinimumWidth(1, 200)
+        mainlayout.setColumnMinimumWidth(2, 200)
+        mainlayout.addWidget(leftbox, 0, 0)
+        mainlayout.addWidget(middlebox, 0, 1)
+        mainlayout.addLayout(rightbox, 0, 2)
+        mainlayout.addLayout(self.slidervbox, 1, 0)
+        mainlayout.addLayout(self.hbox, 1, 2)
+
+        self.setLayout(mainlayout)
+        self.setWindowTitle('DnD 5e Encounter Generator')
+        self.show()
 
     def _createLeftGroupBox(self):
         """ Creates the terrain options. """
@@ -102,7 +126,7 @@ class DndEncGenGUI(QWidget):
         self.night = QCheckBox("Single Night (nitghtime hours)")
         self.custom = QCheckBox("Custom Time Range")
         self.custom.stateChanged.connect(self._toggleTimeInput)
-        
+
         hboxcustomtime = QHBoxLayout()
         vbox1 = QVBoxLayout()
         self.monthslbl = QLabel()
@@ -114,12 +138,12 @@ class DndEncGenGUI(QWidget):
             count = count + 1
         vbox1.addWidget(self.monthslbl)
         vbox1.addWidget(self.monthsdd)
-        vbox2= QVBoxLayout()
+        vbox2 = QVBoxLayout()
         self.weekslbl = QLabel()
         self.weekslbl.setText("Weeks")
         self.weeksdd = QComboBox()
         count = 0
-        for num in range(0, 5):
+        for num in range(0, 4):
             self.weeksdd.addItem(str(count))
             count = count + 1
         vbox2.addWidget(self.weekslbl)
@@ -129,7 +153,7 @@ class DndEncGenGUI(QWidget):
         self.dayslbl.setText("Days")
         self.daysdd = QComboBox()
         count = 0
-        for num in range(0, 8):
+        for num in range(0, 7):
             self.daysdd.addItem(str(count))
             count = count + 1
         vbox3.addWidget(self.dayslbl)
@@ -143,49 +167,16 @@ class DndEncGenGUI(QWidget):
         self.weeksdd.hide()
         self.dayslbl.hide()
         self.daysdd.hide()
-        
-        # self.dayslbl = QLabel()
-        # self.dayslbl.setText("days")
-        # self.customlbl = QLabel()
-        # self.customlbl.setText("Example: 1m2w3d")
-        # self.customlbl.hide()
-        # self.customqle = QLineEdit()
-        # self.customqle.hide()
 
         vboxbottom.addWidget(self.day)
         vboxbottom.addWidget(self.night)
         vboxbottom.addWidget(self.custom)
         vboxbottom.addLayout(hboxcustomtime)
-        # vboxbottom.addWidget(self.customlbl)
-        # vboxbottom.addWidget(self.customqle)
         gboxbottom.setLayout(vboxbottom)
 
         vboxright.addWidget(gboxtop)
         vboxright.addWidget(gboxbottom)
         return vboxright
-
-    def initUI(self):
-        """ Initializes the window. """
-        self.gen = DndEncGen()
-
-        leftbox = self._createLeftGroupBox()
-        middlebox = self._createMiddleGroupBox()
-        rightbox = self._createRightGroupBoxes()
-        self._createBottomRow()
-        mainlayout = QGridLayout()
-        mainlayout.setAlignment(Qt.AlignTop)
-        mainlayout.setColumnMinimumWidth(0, 200)
-        mainlayout.setColumnMinimumWidth(1, 200)
-        mainlayout.setColumnMinimumWidth(2, 200)
-        mainlayout.addWidget(leftbox, 0, 0)
-        mainlayout.addWidget(middlebox, 0, 1)
-        mainlayout.addLayout(rightbox, 0, 2)
-        mainlayout.addLayout(self.slidervbox, 1, 0)
-        mainlayout.addLayout(self.hbox, 1, 2)
-
-        self.setLayout(mainlayout)
-        self.setWindowTitle('DnD 5e Encounter Generator')
-        self.show()
 
     def _createBottomRow(self):
         """ maybe add a reset button to clear current settings """
@@ -194,8 +185,8 @@ class DndEncGenGUI(QWidget):
         sliderlbl.setText("Encounter Frequency Adjustment")
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(1)
-        self.slider.setMaximum(17)
-        self.slider.setValue(9)
+        self.slider.setMaximum(199)
+        self.slider.setValue(100)
         self.slidervbox.addWidget(sliderlbl)
         self.slidervbox.addWidget(self.slider)
 
@@ -215,8 +206,10 @@ class DndEncGenGUI(QWidget):
     @pyqtSlot()
     def on_click(self):
         """ Handles click to pass settings to the generator. """
-        self.parseParameters()
+        if self.parseParameters() != 0:
+            return -1
         self.gen.generateEncounter()
+        return 0
 
     @pyqtSlot()
     def on_click_reset(self):
@@ -238,7 +231,8 @@ class DndEncGenGUI(QWidget):
         self.day.setChecked(False)
         self.night.setChecked(False)
         self.custom.setChecked(False)
-        self.slider.setValue(9)
+        self.slider.setValue(100)
+        return 0
 
     def _toggleTimeInput(self):
         """ Handles dynamic display of alternate time inputs. """
@@ -251,8 +245,6 @@ class DndEncGenGUI(QWidget):
             self.weeksdd.show()
             self.dayslbl.show()
             self.daysdd.show()
-            # self.customlbl.show()
-            # self.customqle.show()
         elif not self.custom.isChecked():
             self.day.show()
             self.night.show()
@@ -262,8 +254,11 @@ class DndEncGenGUI(QWidget):
             self.weeksdd.hide()
             self.dayslbl.hide()
             self.daysdd.hide()
-            # self.customlbl.hide()
-            # self.customqle.hide()
+        return 0
+
+    def _popupMessage(self, title, message):
+        QMessageBox.about(self, title, message)
+        return 0
 
     def parseParameters(self):
         """ Loads the values into the generator depending on current
@@ -308,8 +303,6 @@ class DndEncGenGUI(QWidget):
             self.gen.partysize = self.numplayers.currentText()
         if self.avglvl.currentText() != "":
             self.gen.partylevel = self.avglvl.currentText()
-        # if self.cr.text() != "":
-        #     self.gen.challengerating = self.cr.text()
 
         if self.day.isChecked():
             self.gen.time[3] = 1
@@ -319,8 +312,14 @@ class DndEncGenGUI(QWidget):
             self.gen.time[0] = int(self.monthsdd.currentText())
             self.gen.time[1] = int(self.weeksdd.currentText())
             self.gen.time[2] = int(self.daysdd.currentText())
-
+            count = self.gen.time[0] + self.gen.time[1] + self.gen.time[2]
+            if count < 1:
+                self._popupMessage("Custom Time Error",
+                                   "A custom time must be greater than zero.")
+                return -1
+                
         self.gen.freqadjust = self.slider.value()
+        return 0
 
 
 if __name__ == '__main__':

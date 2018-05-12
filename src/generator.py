@@ -12,7 +12,6 @@ class DndEncGen():
         self.travels = []
         self.partysize = 0
         self.partylevel = 0
-        # self.challengerating = 0
         # time[0] = months, time[1] = weeks, time[2] = days
         # time[3] = day or night = 1 or -1
         self.time = [0, 0, 0, 0]
@@ -21,7 +20,7 @@ class DndEncGen():
         self.xplvl1 = 25
         # traveltype[0] = highway, traveltype[1] = road
         # traveltype[2] = trail, traveltype[3] = wilderness
-        self.traveltype = [{"merchantcaravan": 95, "travellers": 85,
+        self.traveltype = [{"merchantcaravan": 85, "travellers": 75,
                             "lonetraveller": 65, "soldiers": 45,
                             "adventurers": 35, "monsters":  5,
                             "animals": 3},
@@ -37,21 +36,25 @@ class DndEncGen():
                             "lonetraveller": 0, "soldiers": 20,
                             "adventurers": 5, "monsters":  45,
                             "animals": 65}]
-        self.terraintypemod = {"arctic": 90,
-                               "coast": 110,
-                               "desert": 90,
-                               "forest": 110,
+        self.terraintypemod = {"arctic": 80,
+                               "coast": 120,
+                               "desert": 80,
+                               "forest": 120,
                                "grasslands": 100,
                                "hills": 100,
-                               "mountains": 95,
-                               "swamp": 110,
+                               "mountains": 75,
+                               "swamp": 120,
                                "underdark": 100,
                                "underwater": 100,
-                               "urban": 105}
+                               "urban": 125}
         self.encounters = {"merchantcaravan": 0, "travellers": 0,
                            "lonetraveller": 0, "soldiers": 0,
                            "adventurers": 0, "monsters": 0,
                            "animals": 0}
+        self.maxencounters = {"merchantcaravan": 20, "travellers": 15,
+                              "lonetraveller": 10, "soldiers": 5,
+                              "adventurers": 3, "monsters": 2,
+                              "animals": 2}
 
     def generateEncounter(self):
         """ This is the master function that starts the process of displaying a
@@ -60,7 +63,6 @@ class DndEncGen():
         print(self.travels)
         print(self.partysize)
         print(self.partylevel)
-        # print(self.challengerating)
         print(self.time)
         print(self.freqadjust)
         self._determineEncoutersAndNumbers()
@@ -69,6 +71,7 @@ class DndEncGen():
         print(self.xpforencouner)
 
         self.reset()
+        return 0
 
     def _determineEncoutersAndNumbers(self):
         """ This method gneerates the encounters dict that contains ecounter
@@ -76,7 +79,7 @@ class DndEncGen():
         months = 0
         weeks = 0
         days = 0
-        daynight = self.time[0]
+        daynight = self.time[3]
         numberofperiods = 0
         nightmod = 100
         if self.time[0] != 0:
@@ -86,43 +89,56 @@ class DndEncGen():
         if self.time[2] != 0:
             days = self.time[2]
         if daynight == 0:
-            numberofperiods = (months * 30) + (weeks * 7) + (day)
-# if numberofperiods = 0 throw error            
-        elif daynight != 0:
+            numberofperiods = (months * 30) + (weeks * 7) + (days)
+        elif daynight == 1 or daynight == -1:
             numberofperiods = 1
         if daynight == -1:
             nightmod = 150
 # create dict with nighttime chance mods to modify the standard traveltype chance
-
-        for item in self.travels:
-            if item == "Highway":
-                for key, value in self.traveltype[0].items():
-                    rand = random.randrange(1, 100)
-                    if rand <= value:
-                        # need to implement range calc and terrainmod/nightmod
-                        # randnum = random.randrange(1, 19)
-                        self.encounters[key] += 1
-            if item == "Road":
-                for key, value in self.traveltype[1].items():
-                    rand = random.randrange(1, 100)
-                    if rand <= value:
-                        # need to implement range calc and terrainmod/nightmod
-                        # randnum = random.randrange(1, 19)
-                        self.encounters[key] += 1
-            if item == "Trail":
-                for key, value in self.traveltype[2].items():
-                    rand = random.randrange(1, 100)
-                    if rand <= value:
-                        # need to implement range calc and terrainmod/nightmod
-                        # randnum = random.randrange(1, 19)
-                        self.encounters[key] += 1
-            if item == "Wilderness":
-                for key, value in self.traveltype[3].items():
-                    rand = random.randrange(1, 100)
-                    if rand <= value:
-                        # need to implement range calc and terrainmod/nightmod
-                        # randnum = random.randrange(1, 19)
-                        self.encounters[key] += 1
+        print(numberofperiods)
+        for period in range(0, numberofperiods):
+            for item in self.travels:
+                if item == "Highway":
+                    for key, value in self.traveltype[0].items():
+                        rand = random.randrange(1, 100)
+                        if rand <= value:
+                            # need to implement nightmod
+                            max = int(self.maxencounters[key] * (value * .01))
+                            if max < 2:
+                                max = 2
+                            randnum = random.randrange(1, max)
+                            self.encounters[key] += randnum
+                if item == "Road":
+                    for key, value in self.traveltype[1].items():
+                        rand = random.randrange(1, 100)
+                        if rand <= value:
+                            # need to implement nightmod
+                            max = int(self.maxencounters[key] * (value * .01))
+                            if max < 2:
+                                max = 2
+                            randnum = random.randrange(1, max)
+                            self.encounters[key] += randnum
+                if item == "Trail":
+                    for key, value in self.traveltype[2].items():
+                        rand = random.randrange(1, 100)
+                        if rand <= value:
+                            # need to implement nightmod
+                            max = int(self.maxencounters[key] * (value * .01))
+                            if max < 2:
+                                max = 2
+                            randnum = random.randrange(1, max)
+                            self.encounters[key] += randnum
+                if item == "Wilderness":
+                    for key, value in self.traveltype[3].items():
+                        rand = random.randrange(1, 100)
+                        if rand <= value:
+                            # need to implement nightmod
+                            max = int(self.maxencounters[key] * (value * .01))
+                            if max < 2:
+                                max = 2
+                            randnum = random.randrange(1, max)
+                            self.encounters[key] += randnum
+        return 0
 
     def _calculateDifficultyInXP(self):
         """ this calculates total xp available for the encounter and
@@ -145,6 +161,7 @@ class DndEncGen():
         if difficulty == 16:
             self.xpforencouner = (self.xplvl1 * int(self.partylevel) *
                                   int(self.partysize) * 4)
+        return self.xpforencouner
 
     def reset(self):
         self.terrains = []
