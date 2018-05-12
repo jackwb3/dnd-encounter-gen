@@ -10,7 +10,7 @@ class DBHandler():
     """ docstring """
     
     def __init__(self):
-        self.db = "monsters"
+        self.db = "monsters.db"
         self.con = ""
         
     def connect(self):
@@ -23,19 +23,46 @@ class DBHandler():
         with self.con:
             cur = self.con.cursor()
             tmpstring = ""
+            returnlist = []
             for x in range(len(terraintype)):
                 print(x)
                 if x == 0:
-                    tmpstring += " " + terraintype[x] + " = 'YES'"
+                    tmpstring += " (" + terraintype[x] + " = 'YES'"
                 if x > 0:
                     tmpstring += " or " + terraintype[x] + " = 'YES'"
-            query = "SELECT * FROM monsters WHERE" + tmpstring + ";"
+            query = "SELECT Name, Type, ALIGNMENT, Size, CR, AC, HP, \
+                    Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" \
+                    + tmpstring + ") and Type != 'Beast';"
             print(query)
             cur.execute(query)
             rows = cur.fetchall()
             for row in rows:
-                print(row)
-        return 0
+                # print(row)
+                returnlist.append(row)
+        return returnlist
+        
+    def getRelevantBeastData(self, terraintype):
+        """ docstring """
+        with self.con:
+            cur = self.con.cursor()
+            tmpstring = ""
+            returnlist = []
+            for x in range(len(terraintype)):
+                print(x)
+                if x == 0:
+                    tmpstring += " (" + terraintype[x] + " = 'YES'"
+                if x > 0:
+                    tmpstring += " or " + terraintype[x] + " = 'YES'"
+            query = "SELECT Name, Type, ALIGNMENT, Size, CR, AC, HP, \
+                    Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" \
+                    + tmpstring + ") and Type = 'Beast';"
+            print(query)
+            cur.execute(query)
+            rows = cur.fetchall()
+            for row in rows:
+                # print(row)
+                returnlist.append(row)
+        return returnlist
         
         
 # only for testing
