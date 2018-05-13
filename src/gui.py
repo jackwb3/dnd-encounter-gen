@@ -44,6 +44,7 @@ class DndEncGenGUI(QWidget):
         self.setLayout(mainlayout)
         self.setWindowTitle('DnD 5e Encounter Generator')
         self.show()
+        self.on_click_reset()
 
     def _createLeftGroupBox(self):
         """ Creates the terrain options. """
@@ -214,7 +215,7 @@ class DndEncGenGUI(QWidget):
     @pyqtSlot()
     def on_click_reset(self):
         """ Resets all values to default startup values. """
-        self.arctic.setChecked(False)
+        self.arctic.setChecked(True)
         self.desert.setChecked(False)
         self.coast.setChecked(False)
         self.forest.setChecked(False)
@@ -225,11 +226,11 @@ class DndEncGenGUI(QWidget):
         self.underdark.setChecked(False)
         self.underwater.setChecked(False)
         self.urban.setChecked(False)
-        self.highway.setChecked(False)
+        self.highway.setChecked(True)
         self.road.setChecked(False)
         self.trail.setChecked(False)
         self.wilderness.setChecked(False)
-        self.day.setChecked(False)
+        self.day.setChecked(True)
         self.night.setChecked(False)
         self.custom.setChecked(False)
         self.slider.setValue(100)

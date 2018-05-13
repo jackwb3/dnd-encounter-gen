@@ -1,4 +1,15 @@
 """ Encounter number and types are generated here. """
+# TODO:
+# fix function naming conventions and variable names
+#
+# look into a bottom bound on creatures returned from getCreatureData()
+#
+# simplify _determineEncountersAndNumbers() and implement frequency slider and nighttime encounter adjustments
+#
+# make terrain types and travel types exclusive
+#
+# make single day and single night both checked equal 2 periods
+
 
 
 import random
@@ -56,19 +67,6 @@ class DndEncGen():
                               "lonetraveller": 10, "soldiers": 5,
                               "adventurers": 3, "monsters": 2,
                               "animals": 2}
-        self.xptocr = dict([(10, '0'), (25, '1/8'), (50, '1/4'), (100, '1/2'), (200, '1'),
-                            (450, '2'), (700, '3'), (1100,
-                                                     '4'), (1800, '5'), (2300, '6'),
-                            (2900, '7'), (3900, '8'), (5000,
-                                                       '9'), (5900, '10'), (7200, '11'),
-                            (8400, '12'), (10000, '13'), (11500, '14'), (13000, '15'),
-                            (15000, '16'), (18000,
-                                            '17'), (20000, '18'), (22000, '19'),
-                            (25000, '20'), (33000,
-                                            '21'), (41000, '22'), (50000, '23'),
-                            (62000, '24'), (75000, '25'), (90000,
-                                                           '26'), (105000, '27'),
-                            (120000, '28'), (135000, '29'), (155000, '30')])
 
     def generateEncounter(self):
         """ This is the master function that starts the process of displaying a
@@ -81,16 +79,17 @@ class DndEncGen():
         print("freqadjust = ", self.freqadjust)
         self._determineEncoutersAndNumbers()
         print("Encounters = ", self.encounters)
-        self._genMonsterAndAnimalEncounters()
-        # self._calculateDifficultyInXP()
-        # print(self.xpforencouner)
-
+        x, y = self.getEncounters()
+        print(x)
+        print(y)
+        
         self.reset()
         return 0
 
     def _determineEncoutersAndNumbers(self):
         """ This method gneerates the encounters dict that contains ecounter
         type and count.  """
+# need to implement encounter frequency adjustment and break this down into multiple methods
         months = 0
         weeks = 0
         days = 0
@@ -154,67 +153,88 @@ class DndEncGen():
                             self.encounters[key] += randnum
         return 0
 
-    def _calculateDifficultyInXP(self):
-        """ this calculates total xp available for the encounter and
-        has a set likelihood of different encounter difficulties. This
-        difficulty range might need to be made dynamic."""
+    def encounterDifficulty(self):
+        """ Used for individual encounters to randomize the encounter
+        difficulty. """
         difficulty = random.randrange(1, 16)
-        # easy
         if difficulty == 1:
-            difficultyname = "easy"
-            xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                             int(self.partysize))
-        # medium
+            difficultyname = "Easy"
         if difficulty > 1 and difficulty < 10:
-            difficultyname = "medium"
-            xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                             int(self.partysize) * 2)
-        # hard
+            difficultyname = "Medium"
         if difficulty >= 10 and difficulty < 16:
-            difficultyname = "hard"
-            xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                             int(self.partysize) * 3)
-        # deadly
+            difficultyname = "Hard"
         if difficulty == 16:
-            difficultyname = "deadly"
-            xpforencouner = (self.xplvl1 * int(self.partylevel) *
-                             int(self.partysize) * 4)
-        return xpforencouner, difficultyname
-
-    def _genMonsterAndAnimalEncounters(self):
-        """ docstring """
+            difficultyname = "Deadly"
+        return difficultyname
+                
+    def encounterMaxXP(self):
+        """ Used for individual encounters to calculate the max XP for the
+        encounter given the randomly decided difficulty. """
+        difficulty = self.encounterDifficulty()
+        charlvlxpthresh = self.db.getCharacterLevelXPThreshold(difficulty, self.partylevel)
+        maxxp = charlvlxpthresh * int(self.partysize)
+        return maxxp, difficulty
+    
+    def encounterCreatures(self, maxxp, beastflag=None):
+        """ Used for individual encounters to find the creatures in the XP
+        range. """
+        creatures = self.db.getCreaturesData(self.terrains, maxxp, beastflag)
+        return creatures
+        
+    def creatureNumbers(self, maxxp, creaturexp):
+        """ Used for individual encounters to figure out the different numbers
+        of creatures in the possible range of the XP threshold."""
+        if maxxp == creaturexp:
+            return 1
+        for i in range(2, 26):
+            tmp = creaturexp * i
+            if i == 2:
+                tmp = tmp * 1.5
+            if i > 2 and i < 7:
+                tmp = tmp * 2
+            if i > 6 and i < 11:
+                tmp = tmp * 2.5
+            if i > 10 and i < 15:
+                tmp = tmp * 3
+            if i > 14:
+                tmp = tmp * 4
+            if tmp > maxxp:
+                return i - 1
+            if i == 25:
+                return i
+    
+    def encounter(self, beastflag=None):
+        """ This outputs the number of creatures inthe encounter and the basic
+        creature data."""
+        maxxp, difficulty = self.encounterMaxXP()
+        # print("\nDifficulty = ", difficulty)
+        # print("Max XP = ", maxxp)
+        creaturelist = self.encounterCreatures(maxxp, beastflag)
+        # print("Creature List = ")
+        # for item in creaturelist:
+            # print(item[0], item[4])
+        creature = creaturelist[random.randrange(0,len(creaturelist))]
+        # print(creature)
+        numberofcreatures = self.creatureNumbers(maxxp, creature[4])
+        # print("Number of Creatures = ", numberofcreatures)
+        returnarray = [numberofcreatures, creature]
+        # print(returnarray)
+        return returnarray
+        
+    def getEncounters(self):
+        """ This returns all encounters for the period of the type monster and
+        animal. """
+        monsterencounters = []
+        beastencounters = []
         for each in range(0, self.encounters["monsters"]):
-            xp, diff = self._calculateDifficultyInXP()
-            print("xp = ", xp)
-            cr = 0
-            previouskey = 0
-            for key, value in self.xptocr.items():
-                if xp <= key and xp >= previouskey:
-                    cr = value
-                    print("cr = ", cr)
-                previouskey = key
-            potentialmonsters = self.db.getRelevantMonsterData(
-                self.terrains, cr)
-            print("difficulty = ", diff)
-            # for item in potentialbeasts:
-            #     print(item)
+            x = self.encounter()
+            monsterencounters.append(x)
         for each in range(0, self.encounters["animals"]):
-            xp, diff = self._calculateDifficultyInXP()
-            print("xp = ", xp)
-            cr = 0
-            previouskey = 0
-            for key, value in self.xptocr.items():
-                if xp <= key and xp >= previouskey:
-                    cr = value
-                    print("cr = ", cr)
-                previouskey = key
-            potentialbeasts = self.db.getRelevantBeastData(self.terrains, cr)
-            print("difficulty = ", diff)
-            # for item in potentialbeasts:
-            #     print(item)
-            # parse the selection of beasts to find a number of beast whos crs equal the cr value
-        return
-
+            y = self.encounter(1)
+            beastencounters.append(y)
+        return monsterencounters, beastencounters
+        
+        
     def reset(self):
         """ Resets all of the attributes of this class """
         self.terrains = []

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" docstring """
+""" This module handles database interactions. """
 
 
 import sys
@@ -18,42 +18,31 @@ class DBHandler():
         conn = sqlite.connect(self.db)
         return conn
         
-    def getRelevantMonsterData(self, terraintype, cr):
-        """ docstring """
+    def getCharacterLevelXPThreshold(self, difficulty, level):
         with self.con:
             cur = self.con.cursor()
-            tmpstring = ""
-            returnlist = []
-            cr = "'" + cr + "'"
-            for x in range(len(terraintype)):
-                if x == 0:
-                    tmpstring += " (" + terraintype[x] + " = 'YES'"
-                if x > 0:
-                    tmpstring += " or " + terraintype[x] + " = 'YES'"
-            query = "SELECT Name, Type, ALIGNMENT, Size, CR, AC, HP, \
-                    Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" \
-                    + tmpstring + ") and Type != 'Beast' and CR <= " + cr + ";"
+            query = "SELECT " + difficulty + " FROM characterlvlencounter WHERE CharacterLevel = " + level  + ";"
+            # print(query)
             cur.execute(query)
-            rows = cur.fetchall()
-            for row in rows:
-                returnlist.append(row)
-        return returnlist
+            x = cur.fetchone()
+        return int(x[0])
         
-    def getRelevantBeastData(self, terraintype, cr):
-        """ docstring """
+    def getCreaturesData(self, terraintype, maxxp, beast=None):
         with self.con:
             cur = self.con.cursor()
+            maxxp = str(maxxp)
             tmpstring = ""
             returnlist = []
-            cr = "'" + cr + "'"
             for x in range(len(terraintype)):
                 if x == 0:
                     tmpstring += " (" + terraintype[x] + " = 'YES'"
                 if x > 0:
                     tmpstring += " or " + terraintype[x] + " = 'YES'"
-            query = "SELECT Name, Type, ALIGNMENT, Size, CR, AC, HP, \
-                    Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" \
-                    + tmpstring + ") and Type = 'Beast' and CR <= " + cr + ";"
+            if beast == None:
+                query = "SELECT Name, Type, ALIGNMENT, Size, XP, AC, HP, Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" + tmpstring + ") and Type != 'Beast' and XP <= " + maxxp + ";"
+            if beast == 1:
+                query = "SELECT Name, Type, ALIGNMENT, Size, XP, AC, HP, Attack1dmg, Attack2dmg, Spellcasting FROM monsters WHERE" + tmpstring + ") and Type = 'Beast' and XP <= " + maxxp + ";"
+            # print(query)
             cur.execute(query)
             rows = cur.fetchall()
             for row in rows:
