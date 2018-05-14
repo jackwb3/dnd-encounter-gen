@@ -112,7 +112,7 @@ class DndEncGenGUI(QWidget):
         avglvllbl = QLabel("Average Level of Players")
         self.avglvl = QComboBox()
         count = 1
-        for num in range(1, 31):
+        for num in range(1, 21):
             self.avglvl.addItem(str(count))
             count = count + 1
         hbox2.addWidget(avglvllbl)
@@ -267,40 +267,40 @@ class DndEncGenGUI(QWidget):
         """ Loads the values into the generator depending on current
         selections.  """
         if self.arctic.isChecked():
-            self.gen.terrains.append("Arctic")
+            self.gen.terraintype.append("Arctic")
         if self.coast.isChecked():
-            self.gen.terrains.append("Coast")
+            self.gen.terraintype.append("Coast")
         if self.desert.isChecked():
-            self.gen.terrains.append("Desert")
+            self.gen.terraintype.append("Desert")
         if self.forest.isChecked():
-            self.gen.terrains.append("Forest")
+            self.gen.terraintype.append("Forest")
         if self.grassland.isChecked():
-            self.gen.terrains.append("Grassland")
+            self.gen.terraintype.append("Grassland")
         if self.hills.isChecked():
-            self.gen.terrains.append("Hill")
+            self.gen.terraintype.append("Hill")
         if self.mountains.isChecked():
-            self.gen.terrains.append("Mountain")
+            self.gen.terraintype.append("Mountain")
         if self.swamp.isChecked():
-            self.gen.terrains.append("Swamp")
+            self.gen.terraintype.append("Swamp")
         if self.underdark.isChecked():
-            self.gen.terrains.append("Underdark")
+            self.gen.terraintype.append("Underdark")
         if self.underwater.isChecked():
-            self.gen.terrains.append("Underwater")
+            self.gen.terraintype.append("Underwater")
         if self.urban.isChecked():
-            self.gen.terrains.append("Urban")
+            self.gen.terraintype.append("Urban")
 
         if self.highway.isChecked():
-            self.gen.travels.append("Highway")
+            self.gen.traveltype.append("Highway")
         if self.road.isChecked():
-            self.gen.travels.append("Road")
+            self.gen.traveltype.append("Road")
         if self.trail.isChecked():
-            self.gen.travels.append("Trail")
+            self.gen.traveltype.append("Trail")
         if self.wilderness.isChecked():
-            self.gen.travels.append("Wilderness")
+            self.gen.traveltype.append("Wilderness")
         # if self.river.isChecked():
-        #     self.gen.travels.append("River")
+        #     self.gen.traveltype.append("River")
         # if self.sea.isChecked():
-        #     self.gen.travels.append("Sea")
+        #     self.gen.traveltype.append("Sea")
 
         if self.numplayers.currentText() != "":
             self.gen.partysize = self.numplayers.currentText()
@@ -310,7 +310,7 @@ class DndEncGenGUI(QWidget):
         if self.day.isChecked():
             self.gen.time[3] = 1
         if self.night.isChecked():
-            self.gen.time[3] = -1
+            self.gen.time[4] = 1
         if self.custom.isChecked():
             self.gen.time[0] = int(self.monthsdd.currentText())
             self.gen.time[1] = int(self.weeksdd.currentText())

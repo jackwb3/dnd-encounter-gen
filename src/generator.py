@@ -1,14 +1,16 @@
 """ Encounter number and types are generated here. """
 # TODO:
-# fix function naming conventions and variable names
+# look into selecting monsters by type in gui and generator
 #
-# look into a bottom bound on creatures returned from getCreatureData()
+# make terrain types and travel types exclusive in gui
 #
-# simplify _determineEncountersAndNumbers() and implement frequency slider and nighttime encounter adjustments
+# consider making db tables for adventurers and soldiers or even commoners
+# and generating soldiers adventurers and caravans, using soome random name
+# generator
 #
-# make terrain types and travel types exclusive
-#
-# make single day and single night both checked equal 2 periods
+# also think of a way to mix creature types that are related
+# see about making the moster selection process pick monsters closer tothe
+# party level
 
 
 
@@ -21,18 +23,17 @@ class DndEncGen():
 
     def __init__(self):
         self.db = DBHandler()
-        self.terrains = []
-        self.travels = []
+        self.terraintype = []
+        self.traveltype = []
         self.partysize = 0
         self.partylevel = 0
         # time[0] = months, time[1] = weeks, time[2] = days
-        # time[3] = day or night = 1 or -1
-        self.time = [0, 0, 0, 0]
-        self.freqadjust = 50
-        self.xplvl1 = 25
+        # time[3] = dayflag = 1, time[4] = nightflag = 1
+        self.time = [0, 0, 0, 0, 0]
+        self.freqadjust = 0
         # traveltype[0] = highway, traveltype[1] = road
         # traveltype[2] = trail, traveltype[3] = wilderness
-        self.traveltype = [{"merchantcaravan": 85, "travellers": 75,
+        self.encounterchances = [{"merchantcaravan": 85, "travellers": 75,
                             "lonetraveller": 65, "soldiers": 45,
                             "adventurers": 35, "monsters":  5,
                             "animals": 3},
@@ -67,21 +68,24 @@ class DndEncGen():
                               "lonetraveller": 10, "soldiers": 5,
                               "adventurers": 3, "monsters": 2,
                               "animals": 2}
+        self.nighttimemods = {"merchantcaravan": 0, "travellers": 5,
+                              "lonetraveller": 25, "soldiers": 15,
+                              "adventurers": 25, "monsters": 125,
+                              "animals": 135}
 
     def generateEncounter(self):
         """ This is the master function that starts the process of displaying a
         new window with the randomly generated encounters. """
-        print("Terrain Types = ", self.terrains)
-        print("Travel Types = ", self.travels)
-        print("Party Size = ", self.partysize)
-        print("Average Party Level = ", self.partylevel)
-        print("time = ", self.time)
-        print("freqadjust = ", self.freqadjust)
-        self._determineEncoutersAndNumbers()
-        print("Encounters = ", self.encounters)
-        x, y = self.getEncounters()
-        print(x)
-        print(y)
+        # print("Terrain Types = ", self.terraintype)
+        # print("Travel Types = ", self.traveltype)
+        # print("Party Size = ", self.partysize)
+        # print("Average Party Level = ", self.partylevel)
+        # print("time = ", self.time)
+        # print("freqadjust = ", self.freqadjust)
+        x, y = self._getEncounters()
+        print("\nEncounters = ", self.encounters)
+        print("Monsters = ", x)
+        print("Animals = ", y)
         
         self.reset()
         return 0
@@ -89,71 +93,30 @@ class DndEncGen():
     def _determineEncoutersAndNumbers(self):
         """ This method gneerates the encounters dict that contains ecounter
         type and count.  """
-# need to implement encounter frequency adjustment and break this down into multiple methods
-        months = 0
-        weeks = 0
-        days = 0
-        daynight = self.time[3]
-        numberofperiods = 0
-        nightmod = 100
-        if self.time[0] != 0:
-            months = self.time[0]
-        if self.time[1] != 0:
-            weeks = self.time[1]
-        if self.time[2] != 0:
-            days = self.time[2]
-        numberofperiods = (months * 30) + (weeks * 7) + (days)
-        if daynight == 1 or daynight == -1:
-            numberofperiods = 1
-        if daynight == -1:
-            nightmod = 150
-# create dict with nighttime chance mods to modify the standard traveltype chance
+        numberofperiods = ((self.time[0] * 30) + (self.time[1] * 7) + \
+                           self.time[2] + self.time[3] + self.time[4])
         print("Number of Periods = ", numberofperiods)
         for period in range(0, numberofperiods):
-            for item in self.travels:
-                if item == "Highway":
-                    for key, value in self.traveltype[0].items():
-                        rand = random.randrange(1, 100)
-                        if rand <= value:
-                            # need to implement nightmod
-                            max = int(self.maxencounters[key] * (value * .01))
-                            if max < 2:
-                                max = 2
-                            randnum = random.randrange(1, max)
-                            self.encounters[key] += randnum
-                if item == "Road":
-                    for key, value in self.traveltype[1].items():
-                        rand = random.randrange(1, 100)
-                        if rand <= value:
-                            # need to implement nightmod
-                            max = int(self.maxencounters[key] * (value * .01))
-                            if max < 2:
-                                max = 2
-                            randnum = random.randrange(1, max)
-                            self.encounters[key] += randnum
-                if item == "Trail":
-                    for key, value in self.traveltype[2].items():
-                        rand = random.randrange(1, 100)
-                        if rand <= value:
-                            # need to implement nightmod
-                            max = int(self.maxencounters[key] * (value * .01))
-                            if max < 2:
-                                max = 2
-                            randnum = random.randrange(1, max)
-                            self.encounters[key] += randnum
-                if item == "Wilderness":
-                    for key, value in self.traveltype[3].items():
-                        rand = random.randrange(1, 100)
-                        if rand <= value:
-                            # need to implement nightmod
-                            max = int(self.maxencounters[key] * (value * .01))
-                            if max < 2:
-                                max = 2
-                            randnum = random.randrange(1, max)
-                            self.encounters[key] += randnum
+            for item in self.traveltype:
+                translator = {"Highway": self.encounterchances[0],
+                              "Road": self.encounterchances[1],
+                              "Trail": self.encounterchances[2],
+                              "Wilderness": self.encounterchances[3]}
+                for key, value in translator[item].items():
+                    if self.time[4] == 1:
+                        rand = (random.randrange(1, 100) * self.freqadjust * \
+                                (self.nighttimemods[key] * .01))
+                    else:
+                        rand = (random.randrange(1, 100) * (self.freqadjust * .01))
+                    if rand <= value:
+                        max = int(self.maxencounters[key] * (value * .01))
+                        if max < 2:
+                            max = 2
+                        randnum = random.randrange(1, max)
+                        self.encounters[key] += randnum
         return 0
 
-    def encounterDifficulty(self):
+    def _encounterDifficulty(self):
         """ Used for individual encounters to randomize the encounter
         difficulty. """
         difficulty = random.randrange(1, 16)
@@ -167,21 +130,24 @@ class DndEncGen():
             difficultyname = "Deadly"
         return difficultyname
                 
-    def encounterMaxXP(self):
+    def _encounterMaxXP(self):
         """ Used for individual encounters to calculate the max XP for the
         encounter given the randomly decided difficulty. """
-        difficulty = self.encounterDifficulty()
+        difficulty = self._encounterDifficulty()
         charlvlxpthresh = self.db.getCharacterLevelXPThreshold(difficulty, self.partylevel)
         maxxp = charlvlxpthresh * int(self.partysize)
         return maxxp, difficulty
     
-    def encounterCreatures(self, maxxp, beastflag=None):
+    def _encounterCreatures(self, maxxp, beastflag=None):
         """ Used for individual encounters to find the creatures in the XP
         range. """
-        creatures = self.db.getCreaturesData(self.terrains, maxxp, beastflag)
+        creatures = self.db.getCreaturesData(self.terraintype, maxxp, beastflag)
+        if len(creatures) == 0:
+            print("\nZero creatures returned from DB\n")
+            return -1
         return creatures
         
-    def creatureNumbers(self, maxxp, creaturexp):
+    def _creatureNumbers(self, maxxp, creaturexp):
         """ Used for individual encounters to figure out the different numbers
         of creatures in the possible range of the XP threshold."""
         if maxxp == creaturexp:
@@ -203,46 +169,47 @@ class DndEncGen():
             if i == 25:
                 return i
     
-    def encounter(self, beastflag=None):
+    def _encounter(self, beastflag=None):
         """ This outputs the number of creatures inthe encounter and the basic
         creature data."""
-        maxxp, difficulty = self.encounterMaxXP()
+        maxxp, difficulty = self._encounterMaxXP()
         # print("\nDifficulty = ", difficulty)
         # print("Max XP = ", maxxp)
-        creaturelist = self.encounterCreatures(maxxp, beastflag)
-        # print("Creature List = ")
+        creaturelist = self._encounterCreatures(maxxp, beastflag)
+        # print("Creature List Length= ", len(creaturelist))
         # for item in creaturelist:
             # print(item[0], item[4])
         creature = creaturelist[random.randrange(0,len(creaturelist))]
         # print(creature)
-        numberofcreatures = self.creatureNumbers(maxxp, creature[4])
+        numberofcreatures = self._creatureNumbers(maxxp, creature[4])
         # print("Number of Creatures = ", numberofcreatures)
         returnarray = [numberofcreatures, creature]
         # print(returnarray)
         return returnarray
         
-    def getEncounters(self):
+    def _getEncounters(self):
         """ This returns all encounters for the period of the type monster and
         animal. """
         monsterencounters = []
         beastencounters = []
+        self._determineEncoutersAndNumbers()
         for each in range(0, self.encounters["monsters"]):
-            x = self.encounter()
+            x = self._encounter()
             monsterencounters.append(x)
         for each in range(0, self.encounters["animals"]):
-            y = self.encounter(1)
+            y = self._encounter(1)
             beastencounters.append(y)
         return monsterencounters, beastencounters
         
         
     def reset(self):
         """ Resets all of the attributes of this class """
-        self.terrains = []
-        self.travels = []
+        self.terraintype = []
+        self.traveltype = []
         self.partysize = 0
         self.partylevel = 0
         self.challengerating = 0
-        self.time = [0, 0, 0, 0]
+        self.time = [0, 0, 0, 0, 0]
         self.freqadjust = 50
         self.encounters = {"merchantcaravan": 0, "travellers": 0,
                            "lonetraveller": 0, "soldiers": 0,

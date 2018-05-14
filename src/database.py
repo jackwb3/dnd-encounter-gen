@@ -11,9 +11,9 @@ class DBHandler():
     
     def __init__(self):
         self.db = "monsters.db"
-        self.con = self.connect()
+        self.con = self._connect()
         
-    def connect(self):
+    def _connect(self):
         """ docstring """
         conn = sqlite.connect(self.db)
         return conn
@@ -30,6 +30,7 @@ class DBHandler():
     def getCreaturesData(self, terraintype, maxxp, beast=None):
         with self.con:
             cur = self.con.cursor()
+            minxp = str(maxxp * 0.25)
             maxxp = str(maxxp)
             tmpstring = ""
             returnlist = []
@@ -47,6 +48,7 @@ class DBHandler():
             rows = cur.fetchall()
             for row in rows:
                 returnlist.append(row)
+                #print(row)
         return returnlist
         
         
