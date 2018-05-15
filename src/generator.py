@@ -1,8 +1,12 @@
 """ Encounter number and types are generated here. """
 # TODO:
-# look into selecting monsters by type in gui and generator
+# add detail's filepaths to database and monster/animal query results
 #
-# make terrain types and travel types exclusive in gui
+# randomize individual monsters in encounter adn figure out how to display withlink to details
+#
+# clean up Total Number of Encounters output
+#
+# look into selecting monsters by type in gui and generator
 #
 # consider making db tables for adventurers and soldiers or even commoners
 # and generating soldiers adventurers and caravans, using soome random name
@@ -31,6 +35,7 @@ class EncounterGenerator():
         # time[3] = dayflag = 1, time[4] = nightflag = 1
         self.time = [0, 0, 0, 0, 0]
         self.freqadjust = 0
+        self.previousgenerationflag = 0
         # traveltype[0] = highway, traveltype[1] = road
         # traveltype[2] = trail, traveltype[3] = wilderness
         self.encounterchances = [{"merchantcaravan": 85, "travellers": 75,
@@ -86,9 +91,7 @@ class EncounterGenerator():
         print("\nEncounters = ", self.encounters)
         print("Monsters = ", x)
         print("Animals = ", y)
-        
-        self.reset()
-        return x, y
+        return self.encounters, x, y
 
     def _determineEncoutersAndNumbers(self):
         """ This method gneerates the encounters dict that contains ecounter

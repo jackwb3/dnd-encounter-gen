@@ -27,7 +27,6 @@ class MainWindow(QMainWindow):
         
         self.initUI()
         
-        
     def initUI(self):
         exitAct = QAction(QIcon('exit.png'), '&Exit', self)
         exitAct.setShortcut('Ctrl+Q')
@@ -41,6 +40,7 @@ class MainWindow(QMainWindow):
         self.quitbttn = QPushButton("Quit")
         self.quitbttn.clicked.connect(QApplication.instance().quit)
         self.show()
+        
     
 class TabWidget(QTabWidget):
     """ docstring """
@@ -48,6 +48,7 @@ class TabWidget(QTabWidget):
         super(TabWidget, self).__init__()
         self.maintab = GenerateWidget(self)
         self.addTab(self.maintab, "Generate Encounters")
+        self.setTabsClosable(True)
         self.show()
         
             
@@ -237,9 +238,9 @@ class GenerateWidget(QWidget):
         tab. """
         if self.parseParameters() != 0:
             return -1
-        monsters, animals = self.gen.generateEncounter()
+        encounters, monsters, animals = self.gen.generateEncounter()
         self.encountercounter += 1
-        newencounter = EncounterWidget(self.parent, monsters, animals)
+        newencounter = EncounterWidget(self.parent, encounters, monsters, animals)
         title = "Encounters (" + str(self.encountercounter) + ")"
         super(TabWidget, self.parent).addTab(newencounter, title)
         super(TabWidget, self.parent).setCurrentIndex(self.encountercounter)
@@ -304,6 +305,7 @@ class GenerateWidget(QWidget):
     def parseParameters(self):
         """ Loads the values into the generator depending on current
         selections.  """
+        self.gen.reset()
         if self.arctic.isChecked():
             self.gen.terraintype.append("Arctic")
         if self.coast.isChecked():
@@ -357,39 +359,52 @@ class GenerateWidget(QWidget):
         return 0
 
 
-
-
-
-
-
 class EncounterWidget(QWidget):
     """ docstring """
-    def __init__(self, parent, monsters, animals):
+    def __init__(self, parent, encounters, monsters, animals):
         super(EncounterWidget, self).__init__()
+        self.parent = parent
+        self.encounters = encounters
         self.monsters = monsters
         self.animals = animals
-        self.InitUI()
+        
+        self.layout = QVBoxLayout()
+        self.layout.setAlignment(Qt.AlignTop)
+    
+        label = QLabel()
+        label.setText("Total Numbers of Encounters by Type:")
+        # scroll = QScrollArea()
+        # scroll.setWidget(textarea)
+        self.layout.addWidget(label)
         self.genOutput()
         
-    def InitUI(self):
-        layout = QVBoxLayout()
-        textarea = QPlainTextEdit()
-        textarea.setMinimumSize(layout.maximumSize())
-        scroll = QScrollArea()
-        scroll.setWidget(textarea)
-        layout.addWidget(scroll)
-        self.setLayout(layout)
+        self.closebttn = QPushButton("Close")
+        self.closebttn.clicked.connect(self.on_close_click)
+        self.layout.addWidget(self.closebttn)
+
+        self.setLayout(self.layout)
         self.show()
         
     def genOutput(self):
-        pass
-        
-        
+        for key, value in self.encounters.items():
+            hbox = QHBoxLayout()
+            typelbl = QLabel()
+            typelbl.setText(key)
+            countlbl = QLabel()
+            countlbl.setText(str(value))
+            hbox.addWidget(typelbl)
+            hbox.addWidget(countlbl)
+            self.layout.addLayout(hbox)
+            
+    @pyqtSlot()
+    def on_close_click(self):
+        super(TabWidget, self.parent).removeTab(super(TabWidget, self.parent).currentIndex())
+
         
 class DetailsWidget(QWidget):
-    
+    """ docstring """
     def __init__():
-        self.tite = "blah"
+        pass
 
 
         
