@@ -48,8 +48,11 @@ class TabWidget(QTabWidget):
         super(TabWidget, self).__init__()
         self.maintab = GenerateWidget(self)
         self.addTab(self.maintab, "Generate Encounters")
-        self.setTabsClosable(True)
         self.show()
+    
+    @pyqtSlot()
+    def close_request(self, index):
+        self.removeTab(index)
         
             
 class GenerateWidget(QWidget):
@@ -242,8 +245,8 @@ class GenerateWidget(QWidget):
         self.encountercounter += 1
         newencounter = EncounterWidget(self.parent, encounters, monsters, animals)
         title = "Encounters (" + str(self.encountercounter) + ")"
-        super(TabWidget, self.parent).addTab(newencounter, title)
-        super(TabWidget, self.parent).setCurrentIndex(self.encountercounter)
+        index = super(TabWidget, self.parent).addTab(newencounter, title)
+        super(TabWidget, self.parent).setCurrentIndex(index)
         return 0
 
     @pyqtSlot()

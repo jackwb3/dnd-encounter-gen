@@ -9,7 +9,7 @@
 # look into selecting monsters by type in gui and generator
 #
 # consider making db tables for adventurers and soldiers or even commoners
-# and generating soldiers adventurers and caravans, using soome random name
+# and generating soldiers adventurers and caravans, using some random name
 # generator
 #
 # also think of a way to mix creature types that are related
