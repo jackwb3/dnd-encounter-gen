@@ -18,7 +18,7 @@ import random
 from database import DBHandler
 
 
-class DndEncGen():
+class EncounterGenerator():
     """ Class handles encounter generation. """
 
     def __init__(self):
@@ -88,7 +88,7 @@ class DndEncGen():
         print("Animals = ", y)
         
         self.reset()
-        return 0
+        return x, y
 
     def _determineEncoutersAndNumbers(self):
         """ This method gneerates the encounters dict that contains ecounter

@@ -11,91 +11,116 @@ from PyQt5.QtWidgets import (QWidget, QPushButton,
                              QLabel, QGridLayout,
                              QLineEdit, QGroupBox,
                              QSlider, QComboBox,
-                             QMessageBox)
-from PyQt5.QtCore import (pyqtSlot, Qt)
+                             QMessageBox, QMainWindow,
+                             QTabWidget, QAction,
+                             qApp, QButtonGroup,
+                             QTextEdit, QScrollArea,
+                             QPlainTextEdit, QLayout)
+from PyQt5.QtCore import (pyqtSlot, Qt, QSize)
+from PyQt5.QtGui import QIcon
 
 
-class MainWindow(QWidget):
-    """ This class is used to construct the GUI. """
-
+class MainWindow(QMainWindow):
+    """ docstring """
     def __init__(self):
         super().__init__()
+        
         self.initUI()
-
+        
+        
     def initUI(self):
-        """ Initializes the window. """
-        self.gen = EncounterGenerator()
+        exitAct = QAction(QIcon('exit.png'), '&Exit', self)
+        exitAct.setShortcut('Ctrl+Q')
+        exitAct.setStatusTip('Exit application')
+        exitAct.triggered.connect(qApp.quit)
+        
+        self.setWindowTitle('DnD Random Encounters Generator, 5e')
+        self.tabwidget = TabWidget(self)
+        self.setCentralWidget(self.tabwidget)
 
-        leftbox = self._createLeftGroupBox()
-        middlebox = self._createMiddleGroupBox()
-        rightbox = self._createRightGroupBoxes()
-        self._createBottomRow()
+        self.quitbttn = QPushButton("Quit")
+        self.quitbttn.clicked.connect(QApplication.instance().quit)
+        self.show()
+    
+class TabWidget(QTabWidget):
+    """ docstring """
+    def __init__(self, parent):
+        super(TabWidget, self).__init__()
+        self.maintab = GenerateWidget(self)
+        self.addTab(self.maintab, "Generate Encounters")
+        self.show()
+        
+            
+class GenerateWidget(QWidget):
+    """ Its rough and needs to be broken down. """
+    def __init__(self, parent):
+        super(GenerateWidget, self).__init__()
+        """ Initializes the window. """
+        self.parent = parent
+        self.gen = EncounterGenerator()
+        self.encountercounter = 0
+        
         mainlayout = QGridLayout()
         mainlayout.setAlignment(Qt.AlignTop)
         mainlayout.setColumnMinimumWidth(0, 200)
         mainlayout.setColumnMinimumWidth(1, 200)
         mainlayout.setColumnMinimumWidth(2, 200)
-        mainlayout.addWidget(leftbox, 0, 0)
-        mainlayout.addWidget(middlebox, 0, 1)
-        mainlayout.addLayout(rightbox, 0, 2)
-        mainlayout.addLayout(self.slidervbox, 1, 0)
-        mainlayout.addLayout(self.hbox, 1, 2)
-
-        self.setLayout(mainlayout)
-        self.setWindowTitle('DnD 5e Encounter Generator')
-        self.show()
-        self.on_reset_click()
-
-    def _createLeftGroupBox(self):
-        """ Creates the terrain options. """
-        group = QGroupBox("Terrain Type")
-        vbox = QVBoxLayout()
+        
+        groupleft = QGroupBox("Terrain Type")
+        vboxleft = QVBoxLayout()
+        buttongroupleft = QButtonGroup(self)
+        buttongroupleft.setExclusive(True)
         self.arctic = QCheckBox("Arctic")
-        vbox.addWidget(self.arctic)
+        vboxleft.addWidget(self.arctic)
+        buttongroupleft.addButton(self.arctic)
         self.desert = QCheckBox("Desert")
-        vbox.addWidget(self.desert)
+        vboxleft.addWidget(self.desert)
+        buttongroupleft.addButton(self.desert)
         self.coast = QCheckBox("Coast")
-        vbox.addWidget(self.coast)
+        vboxleft.addWidget(self.coast)
+        buttongroupleft.addButton(self.coast)
         self.forest = QCheckBox("Forest")
-        vbox.addWidget(self.forest)
+        vboxleft.addWidget(self.forest)
+        buttongroupleft.addButton(self.forest)
         self.grassland = QCheckBox("Grassland")
-        vbox.addWidget(self.grassland)
-        self.hills = QCheckBox("Hill")
-        vbox.addWidget(self.hills)
-        self.mountains = QCheckBox("Mountain")
-        vbox.addWidget(self.mountains)
+        vboxleft.addWidget(self.grassland)
+        buttongroupleft.addButton(self.grassland)
+        self.hill = QCheckBox("Hill")
+        vboxleft.addWidget(self.hill)
+        buttongroupleft.addButton(self.hill)
+        self.mountain = QCheckBox("Mountain")
+        vboxleft.addWidget(self.mountain)
+        buttongroupleft.addButton(self.mountain)
         self.swamp = QCheckBox("Swamp")
-        vbox.addWidget(self.swamp)
+        vboxleft.addWidget(self.swamp)
+        buttongroupleft.addButton(self.swamp)
         self.underdark = QCheckBox("Underdark")
-        vbox.addWidget(self.underdark)
+        vboxleft.addWidget(self.underdark)
+        buttongroupleft.addButton(self.underdark)
         self.underwater = QCheckBox("Underwater")
-        vbox.addWidget(self.underwater)
+        vboxleft.addWidget(self.underwater)
+        buttongroupleft.addButton(self.underwater)
         self.urban = QCheckBox("Urban")
-        vbox.addWidget(self.urban)
-        group.setLayout(vbox)
-        return group
-
-    def _createMiddleGroupBox(self):
-        """ Creates the travel type options. """
-        group = QGroupBox("Travel Type")
-        vbox = QVBoxLayout()
+        vboxleft.addWidget(self.urban)
+        groupleft.setLayout(vboxleft)
+        
+        groupmid = QGroupBox("Travel Type")
+        vboxmid = QVBoxLayout()
+        buttongroupmid = QButtonGroup(self)
         self.highway = QCheckBox("Highway")
-        vbox.addWidget(self.highway)
+        buttongroupmid.addButton(self.highway)
+        vboxmid.addWidget(self.highway)
         self.road = QCheckBox("Road")
-        vbox.addWidget(self.road)
+        buttongroupmid.addButton(self.road)
+        vboxmid.addWidget(self.road)
         self.trail = QCheckBox("Trail")
-        vbox.addWidget(self.trail)
+        buttongroupmid.addButton(self.trail)
+        vboxmid.addWidget(self.trail)
         self.wilderness = QCheckBox("Wilderness")
-        vbox.addWidget(self.wilderness)
-        # self.river = QCheckBox("River")
-        # vbox.addWidget(self.river)
-        # self.sea = QCheckBox("Sea")
-        # vbox.addWidget(self.sea)
-        group.setLayout(vbox)
-        return group
-
-    def _createRightGroupBoxes(self):
-        """ Creates the party and time options. """
+        buttongroupmid.addButton(self.wilderness)
+        vboxmid.addWidget(self.wilderness)
+        groupmid.setLayout(vboxmid)
+        
         vboxright = QVBoxLayout()
         gboxtop = QGroupBox("Party Parameters")
         vboxtop = QVBoxLayout()
@@ -120,14 +145,12 @@ class MainWindow(QWidget):
         vboxtop.addLayout(hbox1)
         vboxtop.addLayout(hbox2)
         gboxtop.setLayout(vboxtop)
-
         gboxbottom = QGroupBox("Time Parameters")
         vboxbottom = QVBoxLayout()
         self.day = QCheckBox("Single Day (daylight hours)")
         self.night = QCheckBox("Single Night (nitghtime hours)")
         self.custom = QCheckBox("Custom Time Range")
         self.custom.stateChanged.connect(self._toggleTimeInput)
-
         hboxcustomtime = QHBoxLayout()
         vbox1 = QVBoxLayout()
         self.monthslbl = QLabel()
@@ -168,19 +191,14 @@ class MainWindow(QWidget):
         self.weeksdd.hide()
         self.dayslbl.hide()
         self.daysdd.hide()
-
         vboxbottom.addWidget(self.day)
         vboxbottom.addWidget(self.night)
         vboxbottom.addWidget(self.custom)
         vboxbottom.addLayout(hboxcustomtime)
         gboxbottom.setLayout(vboxbottom)
-
         vboxright.addWidget(gboxtop)
         vboxright.addWidget(gboxbottom)
-        return vboxright
-
-    def _createBottomRow(self):
-        """ This generated the bottom row of options and buttons. """
+        
         self.slidervbox = QVBoxLayout()
         sliderlbl = QLabel()
         sliderlbl.setText("Encounter Frequency Adjustment")
@@ -198,18 +216,33 @@ class MainWindow(QWidget):
         self.quitbttn = QPushButton("Quit")
         self.quitbttn.clicked.connect(QApplication.instance().quit)
 
-        self.hbox = QHBoxLayout()
-        self.hbox.addStretch(1)
-        self.hbox.addWidget(self.resetbttn)
-        self.hbox.addWidget(self.generatebttn)
-        self.hbox.addWidget(self.quitbttn)
+        self.hboxrgq = QHBoxLayout()
+        self.hboxrgq.addStretch(1)
+        self.hboxrgq.addWidget(self.resetbttn)
+        self.hboxrgq.addWidget(self.generatebttn)
+        self.hboxrgq.addWidget(self.quitbttn)
+        
+        mainlayout.addWidget(groupleft, 0, 0)
+        mainlayout.addWidget(groupmid, 0, 1)
+        mainlayout.addLayout(vboxright, 0, 2)
+        mainlayout.addLayout(self.slidervbox, 1, 0)
+        mainlayout.addLayout(self.hboxrgq, 1, 2)
+        self.setLayout(mainlayout)
+        self.show()
+        self.on_reset_click()
 
     @pyqtSlot()
     def on_generate_click(self):
-        """ Handles click to pass settings to the generator. """
+        """ Handles click to pass settings to the generator and create a new
+        tab. """
         if self.parseParameters() != 0:
             return -1
-        self.gen.generateEncounter()
+        monsters, animals = self.gen.generateEncounter()
+        self.encountercounter += 1
+        newencounter = EncounterWidget(self.parent, monsters, animals)
+        title = "Encounters (" + str(self.encountercounter) + ")"
+        super(TabWidget, self.parent).addTab(newencounter, title)
+        super(TabWidget, self.parent).setCurrentIndex(self.encountercounter)
         return 0
 
     @pyqtSlot()
@@ -220,8 +253,8 @@ class MainWindow(QWidget):
         self.coast.setChecked(False)
         self.forest.setChecked(False)
         self.grassland.setChecked(False)
-        self.hills.setChecked(False)
-        self.mountains.setChecked(False)
+        self.hill.setChecked(False)
+        self.mountain.setChecked(False)
         self.swamp.setChecked(False)
         self.underdark.setChecked(False)
         self.underwater.setChecked(False)
@@ -240,7 +273,9 @@ class MainWindow(QWidget):
         """ Handles dynamic display of alternate time inputs. """
         if self.custom.isChecked():
             self.day.hide()
+            self.day.setChecked(False)
             self.night.hide()
+            self.night.setChecked(False)
             self.monthslbl.show()
             self.monthsdd.show()
             self.weekslbl.show()
@@ -252,10 +287,13 @@ class MainWindow(QWidget):
             self.night.show()
             self.monthslbl.hide()
             self.monthsdd.hide()
+            self.monthsdd.setCurrentIndex(0)
             self.weekslbl.hide()
             self.weeksdd.hide()
+            self.weeksdd.setCurrentIndex(0)
             self.dayslbl.hide()
             self.daysdd.hide()
+            self.daysdd.setCurrentIndex(0)
         return 0
 
     def _popupMessage(self, title, message):
@@ -276,9 +314,9 @@ class MainWindow(QWidget):
             self.gen.terraintype.append("Forest")
         if self.grassland.isChecked():
             self.gen.terraintype.append("Grassland")
-        if self.hills.isChecked():
+        if self.hill.isChecked():
             self.gen.terraintype.append("Hill")
-        if self.mountains.isChecked():
+        if self.mountain.isChecked():
             self.gen.terraintype.append("Mountain")
         if self.swamp.isChecked():
             self.gen.terraintype.append("Swamp")
@@ -297,11 +335,7 @@ class MainWindow(QWidget):
             self.gen.traveltype.append("Trail")
         if self.wilderness.isChecked():
             self.gen.traveltype.append("Wilderness")
-        # if self.river.isChecked():
-        #     self.gen.traveltype.append("River")
-        # if self.sea.isChecked():
-        #     self.gen.traveltype.append("Sea")
-
+                    
         if self.numplayers.currentText() != "":
             self.gen.partysize = self.numplayers.currentText()
         if self.avglvl.currentText() != "":
@@ -323,8 +357,44 @@ class MainWindow(QWidget):
         return 0
 
 
-if __name__ == '__main__':
 
+
+
+
+
+class EncounterWidget(QWidget):
+    """ docstring """
+    def __init__(self, parent, monsters, animals):
+        super(EncounterWidget, self).__init__()
+        self.monsters = monsters
+        self.animals = animals
+        self.InitUI()
+        self.genOutput()
+        
+    def InitUI(self):
+        layout = QVBoxLayout()
+        textarea = QPlainTextEdit()
+        textarea.setMinimumSize(layout.maximumSize())
+        scroll = QScrollArea()
+        scroll.setWidget(textarea)
+        layout.addWidget(scroll)
+        self.setLayout(layout)
+        self.show()
+        
+    def genOutput(self):
+        pass
+        
+        
+        
+class DetailsWidget(QWidget):
+    
+    def __init__():
+        self.tite = "blah"
+
+
+        
+if __name__ == '__main__':
+    
     APP = QApplication(sys.argv)
-    ex = MainWindow()
+    mw = MainWindow()
     sys.exit(APP.exec_())
