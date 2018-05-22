@@ -1,5 +1,9 @@
 """ Encounter number and types are generated here. """
 # TODO:
+# add initiative randomization to encounter display
+#
+# 
+#
 # add detail's filepaths to database and monster/animal query results
 #
 # randomize individual monsters in encounter adn figure out how to display withlink to details

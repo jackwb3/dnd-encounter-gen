@@ -4,6 +4,7 @@ Dungeons and Dragons 5e. """
 
 
 import sys
+import markdown
 from generator import EncounterGenerator
 from PyQt5.QtWidgets import (QWidget, QPushButton,
                              QHBoxLayout, QVBoxLayout,
@@ -15,7 +16,8 @@ from PyQt5.QtWidgets import (QWidget, QPushButton,
                              QTabWidget, QAction,
                              qApp, QButtonGroup,
                              QTextEdit, QScrollArea,
-                             QPlainTextEdit, QLayout)
+                             QPlainTextEdit, QLayout,
+                             QTextBrowser)
 from PyQt5.QtCore import (pyqtSlot, Qt, QSize)
 from PyQt5.QtGui import QIcon
 
@@ -381,10 +383,14 @@ class EncounterWidget(QWidget):
         self.layout.addWidget(label)
         self.genOutput()
         
+        self.detailsbttn = QPushButton("Details")
+        self.detailsbttn.clicked.connect(self.on_details_click)
+        hbox = QHBoxLayout()
         self.closebttn = QPushButton("Close")
         self.closebttn.clicked.connect(self.on_close_click)
-        self.layout.addWidget(self.closebttn)
-
+        hbox.addWidget(self.detailsbttn)
+        hbox.addWidget(self.closebttn)
+        self.layout.addLayout(hbox)
         self.setLayout(self.layout)
         self.show()
         
@@ -402,13 +408,35 @@ class EncounterWidget(QWidget):
     @pyqtSlot()
     def on_close_click(self):
         super(TabWidget, self.parent).removeTab(super(TabWidget, self.parent).currentIndex())
-
+    
+    @pyqtSlot()
+    def on_details_click(self):
+        file_ = open('details/Abjurer.md', 'r')
+        md = file_.read()
+        html = markdown.markdown(md)
+        detailwindow = DetailWidget(self.parent, html)
+        index = super(TabWidget, self.parent).addTab(detailwindow, "Aarakocra")
+        super(TabWidget, self.parent).setCurrentIndex(index)
         
-class DetailsWidget(QWidget):
+        
+class DetailWidget(QWidget):
     """ docstring """
-    def __init__():
-        pass
-
+    def __init__(self, parent, html):
+        super(DetailWidget, self).__init__()
+        self.parent = parent
+        layout = QVBoxLayout()
+        self.view = QTextBrowser()
+        layout.addWidget(self.view)
+        self.closebttn = QPushButton("Close")
+        self.closebttn.clicked.connect(self.on_close_click)
+        layout.addWidget(self.closebttn)
+        self.setLayout(layout)
+        self.view.setHtml(html)
+        self.show()
+        
+    @pyqtSlot()
+    def on_close_click(self):
+        super(TabWidget, self.parent).removeTab(super(TabWidget, self.parent).currentIndex())
 
         
 if __name__ == '__main__':
