@@ -2,8 +2,6 @@
 # TODO:
 # add initiative randomization to encounter display
 #
-# 
-#
 # add detail's filepaths to database and monster/animal query results
 #
 # randomize individual monsters in encounter adn figure out how to display withlink to details
@@ -136,7 +134,7 @@ class EncounterGenerator():
         if difficulty == 16:
             difficultyname = "Deadly"
         return difficultyname
-                
+
     def _encounterMaxXP(self):
         """ Used for individual encounters to calculate the max XP for the
         encounter given the randomly decided difficulty. """
@@ -144,7 +142,7 @@ class EncounterGenerator():
         charlvlxpthresh = self.db.getCharacterLevelXPThreshold(difficulty, self.partylevel)
         maxxp = charlvlxpthresh * int(self.partysize)
         return maxxp, difficulty
-    
+
     def _encounterCreatures(self, maxxp, beastflag=None):
         """ Used for individual encounters to find the creatures in the XP
         range. """
@@ -153,7 +151,7 @@ class EncounterGenerator():
             print("\nZero creatures returned from DB\n")
             return -1
         return creatures
-        
+
     def _creatureNumbers(self, maxxp, creaturexp):
         """ Used for individual encounters to figure out the different numbers
         of creatures in the possible range of the XP threshold."""
@@ -175,7 +173,7 @@ class EncounterGenerator():
                 return i - 1
             if i == 25:
                 return i
-    
+
     def _encounter(self, beastflag=None):
         """ This outputs the number of creatures inthe encounter and the basic
         creature data."""
@@ -193,7 +191,7 @@ class EncounterGenerator():
         returnarray = [numberofcreatures, creature]
         # print(returnarray)
         return returnarray
-        
+
     def _getEncounters(self):
         """ This returns all encounters for the period of the type monster and
         animal. """
@@ -207,8 +205,7 @@ class EncounterGenerator():
             y = self._encounter(1)
             beastencounters.append(y)
         return monsterencounters, beastencounters
-        
-        
+
     def reset(self):
         """ Resets all of the attributes of this class """
         self.terraintype = []
